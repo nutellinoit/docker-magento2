@@ -30,6 +30,14 @@ RUN docker-php-ext-configure intl --enable-intl
 RUN docker-php-ext-install intl
 RUN apk --no-cache add libmcrypt-dev
 RUN docker-php-ext-install mcrypt
+RUN apk --no-cache add libxslt-dev
+RUN docker-php-ext-install xsl
+RUN docker-php-ext-install mysqli
+RUN docker-php-ext-install pdo pdo_mysql
+RUN apk --nocache add libxml2-dev
+RUN docker-php-ext-install soap
+RUN docker-php-ext-install zip
+RUN docker-php-ext-install mbstring
 WORKDIR /app
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
