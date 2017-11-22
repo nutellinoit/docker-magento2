@@ -10,4 +10,6 @@ cd ../build_redis-volatile/
 make build
 cd ../build_varnish/
 make build
+cd ../build_magento2-composer/
+make build
 echo "Completed!"
