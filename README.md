@@ -142,3 +142,8 @@ Please note that your php.ini will be the last parsed thus you can ovverride any
 * sessions on redis?
 * DB clustering?
 * optional RabbitMQ
+
+
+### Credits
+
+Original containers from fballiano
