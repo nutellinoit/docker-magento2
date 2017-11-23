@@ -23,5 +23,7 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 magento2/
+dbdata/
 .vagrant/
 /.vagrant/
+!/magento2-sample-ce/Magento-CE-2.2.1-2017.zip
