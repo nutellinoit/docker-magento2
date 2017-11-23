@@ -1,5 +1,4 @@
-FROM php:7.0-apache
-MAINTAINER Fabrizio Balliano <fabrizio@fabrizioballiano.com>
+FROM php:7.1-apache
 
 RUN apt-get update \
   && apt-get install -y \
