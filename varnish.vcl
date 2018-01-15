@@ -21,6 +21,7 @@ sub vcl_recv {
 
 acl purge {
     "apache";
+    "172.0.0.0/8";
 }
 
 sub vcl_recv {

@@ -29,3 +29,6 @@ dbdata/
 !/magento2-sample-ce/Magento-CE-2.2.1-2017.zip
 /ansible/playbook.retry
 /magento2/
+/backup_db_magento2/
+!/backup_db_magento2/placeholder.txt
+.docker-sync

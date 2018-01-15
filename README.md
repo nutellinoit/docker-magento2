@@ -1,30 +1,86 @@
 # Magento2 (Varnish + PHP7 + Redis + SSL) cluster ready docker-compose infrastructure
 
-## Infrastructure overview
-* Container 1: MariaDB
-* Container 2: Redis (for Magento's cache)
-* Container 3: Apache 2.4 + PHP 7 (modphp)
-* Container 4: Cron
-* Container 5: Varnish 4.1
-* Container 6: Redis (for autodiscovery cluster nodes)
-* Container 7: Nginx SSL terminator
+## Create auth.json
 
-### Why a separate cron container?
-First of all containers should be (as far as possible) single process, but the most important thing is that (if someday we'll be able to deploy this infrastructure in production) we may need a cluster of apache+php containers but a single cron container running.
+Create auth.json on root, with
 
-Plus, with this separation, in the context of a docker swarm, you may be able in the future to separare resources allocated to the cron container from the rest of the infrastructure.
-
-## Setup Magento 2
-
-Download Magento 2 in any way you want (zip/tgz from website, composer, etc) and extract in the "magento2" subdirectory of this project.
-
-If you want to change the default "magento2" directory simply change its name in the "docker-compose.xml" (there are 2 references, under the "cron" section and under the "apache" section).
-
-## Starting all docker containers
+```json
+{
+  "http-basic": {
+    "repo.magento.com": {
+      "username": "username",
+      "password": "password"
+    }
+  }
+}
 ```
-docker-compose up -d
+
+
+set your host file to 
+```bash
+10.0.0.10 magento2.docker
 ```
-The fist time you run this command it's gonna take some time to download all the required images from docker hub.
+
+## First Start on Linux
+
+```bash
+./utility.sh install
+```
+
+## First Start Mac OS
+
+Prerequisite
+
+* Virtualbox
+* Vagrant
+* Ansible with role geerlingguy.docker
+
+```bash
+vagrant up
+```
+
+ssh into vm
+
+```bash
+vagrant ssh
+```
+
+cd on directory synced, and first up:
+
+```bash
+cd /vagrant
+./utility.sh install
+```
+
+That's all.
+
+set your host file to 
+```bash
+10.0.0.10 magento2.docker
+```
+
+###  utility.sh guide
+
+
+
+Start all container
+
+```bash
+./utility.sh up
+```
+
+Enter on apache container
+
+```bash
+./utility.sh bash
+```
+
+delete all containers
+
+```bash
+./utility.sh down
+```
+
 
 ## Install Magento2
 
@@ -33,17 +89,21 @@ open your browser to the address:
 http://magento2.docker/
 ```
 and use the wizard to install Magento2.  
-For database configuration use hostname dockermagento2_db_1 and username/password/dbname you have in your docker-compose.xml file, defaults are:
+For database configuration use hostname ```db``` and username/password/dbname you have in your docker-compose.xml file, defaults are:
 - MYSQL_USER=magento2
 - MYSQL_PASSWORD=magento2
 - MYSQL_DATABASE=magento2
 
-## Deploy static files
-```
-docker exec -it dockermagento2_apache_1 bash
-php bin/magento dev:source-theme:deploy
-php bin/magento setup:static-content:deploy
-```
+
+
+## Infrastructure overview
+* Container 1: MariaDB
+* Container 2: Redis (for Magento's cache)
+* Container 3: Apache 2.4 + PHP 7 (modphp)
+* Container 4: Cron
+* Container 5: Varnish 4.1
+* Container 6: Redis (for autodiscovery cluster nodes)
+* Container 7: Nginx SSL terminator Let's encrypt
 
 ## Enable Redis for Magento's cache
 open magento2/app/etc/env.php and add these lines:
@@ -106,11 +166,7 @@ SetEnvIf X-Forwarded-Proto https HTTPS=on
 ```
 Then you can configure Magento as you wish to support secure urls.
 
-If you need to generate new self signed certificates use this command
-```
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt
-```
-then you can mount them into the nginx-ssl container using the "volumes" instruction in the docker-compose.xml file. Same thing goes if you need to use custom nginx configurations (you can mount them into /etc/nginx/conf.d). Check the source code of https://github.com/fballiano/docker-nginx-ssl-for-magento2 to better understand where are the configuration stored inside the image/container.
+TODO let's encrypt
 
 ## Scaling apache containers
 If you need more horsepower you can

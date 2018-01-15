@@ -1,5 +1,10 @@
-version: '3'
+version: '2'
 services:
+
+  applications:
+    image: tianon/true
+
+
   cron:
     image: nutellinoit/magento2-cron
     depends_on:
@@ -12,8 +17,9 @@ services:
       - apache
       - varnish
     volumes:
-      - ./magento2:/var/www/html
+      - ./magento2-files:/var/www/html
       - ./varnish.secret:/varnish.secret
+      - ./auth.json:/var/www/.composer/auth.json
       # Enable the next line if you want to add a custom php.ini
       #- ./php.ini:/usr/local/etc/php/conf.d/999-customphp.ini
     networks:
@@ -50,9 +56,11 @@ services:
       - db
       - cache
       - clusterdata
+    volumes_from:
+      - applications
     volumes:
-      - ./magento2:/var/www/html
-      - ~/.composer/auth.json:/root/.composer/auth.json
+      - ./magento2-files:/var/www/html
+      - ./auth.json:/var/www/.composer/auth.json
       # Enable the next line if you want to add a custom php.ini
       #- ./php.ini:/usr/local/etc/php/conf.d/999-customphp.ini
     networks:
@@ -66,7 +74,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - dbdata:/var/lib/mysql
+      - ./dbdata/:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=magento2
       - MYSQL_DATABASE=magento2
@@ -90,7 +98,35 @@ services:
       main:
         aliases:
           - clusterdata
-
+  #lets-nginx:
+  #  image:  smashwilson/lets-nginx
+  #  restart: always
+  #  volumes:
+  #    - "./cache:/cache"
+  #    - "./letsencrypt:/etc/letsencrypt"
+  #  links:
+  #    - varnish
+  #  environment:
+  #    EMAIL: "assistenza@busnet.it"
+  #    DOMAIN: "fcrdev.netribe.it"
+  #    UPSTREAM: "varnish:80"
+  #  ports:
+  #    - "80:80"
+  #    - "443:443"
+  #  networks:
+  #    main:
+  #      aliases:
+  #        - lets-nginx
+  backup_db_magento2:
+    restart: always
+    image: registry.busnet.it/busnet/backup_db_magento2:1.0
+    volumes:
+          - ./backup_db_magento2/:/backup/
+          - ./script_backup_magento2.sh:/script.sh
+    networks:
+      main:
+        aliases:
+          - backup_db_magento2
 volumes:
   dbdata:
 
